@@ -64,7 +64,7 @@ fn draw_next_frame(cols: u16, rows: u16, droplets: &mut Vec<Droplet>) -> io::Res
             *droplet = Droplet {
                 row: rng.gen_range(0..rows / 4), // New droplets at the top of the screen.
                 len: 1,
-                max_len: rng.gen_range(DROPLET_MIN_LENGTH..DROPLET_MAX_LENGTH),
+                max_len: rng.gen_range(DROPLET_MIN_LENGTH..=DROPLET_MAX_LENGTH),
             };
             continue;
         }
@@ -111,7 +111,7 @@ fn main() -> io::Result<()> {
 
     let mut droplets: Vec<Droplet> = (0..cols)
         .map(|_| {
-            let len = rng.gen_range(DROPLET_MIN_LENGTH..DROPLET_MAX_LENGTH);
+            let len = rng.gen_range(DROPLET_MIN_LENGTH..=DROPLET_MAX_LENGTH);
             Droplet {
                 row: rng.gen_range(0..rows),
                 len: len,
