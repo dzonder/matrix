@@ -16,13 +16,19 @@ use std::thread;
 use std::time::Duration;
 
 /// How long to sleep between animation frames.
-const FRAME_SLEEP: Duration = Duration::from_millis(70);
+const FRAME_SLEEP: Duration = Duration::from_millis(50);
 
 /// Minimum length of a droplet.
 const DROPLET_MIN_LENGTH: u16 = 2;
 
 /// Maximum length of a droplet.
 const DROPLET_MAX_LENGTH: u16 = 20;
+
+/// Minimum speed of a droplet.
+const DROPLET_MIN_SPEED: f32 = 0.2;
+
+/// Maximum speed of a droplet.
+const DROPLET_MAX_SPEED: f32 = 1.0;
 
 /// Base color of the droplet.
 const BASE_COLOR: (u8, u8, u8) = (170, 255, 170);
@@ -32,6 +38,8 @@ struct Droplet {
     row: u16,
     len: u16,
     max_len: u16,
+    frame: f32, // 1.0 -> draw next frame
+    speed: f32, // (0.0, 1.0]
 }
 
 /// Generate a random character.
@@ -59,12 +67,18 @@ fn draw_next_frame(cols: u16, rows: u16, droplets: &mut Vec<Droplet>) -> io::Res
     let mut rng = rand::thread_rng();
     for col in 0..cols {
         let droplet = &mut droplets[col as usize];
+        droplet.frame += droplet.speed;
+        if droplet.frame < 1.0 {
+            continue;
+        }
         if droplet.row >= rows + droplet.len {
             // Droplet out of screen, create a new one.
             *droplet = Droplet {
                 row: rng.gen_range(0..rows / 4), // New droplets at the top of the screen.
                 len: 1,
                 max_len: rng.gen_range(DROPLET_MIN_LENGTH..=DROPLET_MAX_LENGTH),
+                frame: 1.0,
+                speed: rng.gen_range(DROPLET_MIN_SPEED..=DROPLET_MAX_SPEED),
             };
             continue;
         }
@@ -88,6 +102,7 @@ fn draw_next_frame(cols: u16, rows: u16, droplets: &mut Vec<Droplet>) -> io::Res
             )?;
         }
         // Move to next frame and extend the droplet if needed.
+        droplet.frame -= 1.0;
         droplet.row += 1;
         droplet.len = cmp::min(droplet.len + 1, droplet.max_len);
     }
@@ -116,6 +131,8 @@ fn main() -> io::Result<()> {
                 row: rng.gen_range(0..rows),
                 len: len,
                 max_len: len,
+                frame: 1.0,
+                speed: rng.gen_range(DROPLET_MIN_SPEED..=DROPLET_MAX_SPEED),
             }
         })
         .collect();
