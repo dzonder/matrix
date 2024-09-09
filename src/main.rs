@@ -37,9 +37,9 @@ struct Droplet {
 /// Generate a random character.
 fn random_char() -> char {
     let mut rng = rand::thread_rng();
-    let ascii_start = 33; // ASCII char '!'
-    let ascii_end = 126; // ASCII char '~'
-    let random_char = rng.gen_range(ascii_start..ascii_end);
+    let katakana_start = 0xFF66; // Half-width katakana 'ｦ'
+    let katakana_end = 0xFF9D; // Half-width katakana 'ﾝ'
+    let random_char = rng.gen_range(katakana_start..katakana_end);
     char::from_u32(random_char).unwrap()
 }
 
